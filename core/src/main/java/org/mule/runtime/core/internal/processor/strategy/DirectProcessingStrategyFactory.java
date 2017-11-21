@@ -26,6 +26,7 @@ import org.mule.runtime.core.internal.processor.strategy.StreamPerEventSink;
  */
 public class DirectProcessingStrategyFactory implements ProcessingStrategyFactory {
 
+
   public static final ProcessingStrategy DIRECT_PROCESSING_STRATEGY_INSTANCE =
       new AbstractProcessingStrategy() {
 
@@ -36,7 +37,7 @@ public class DirectProcessingStrategyFactory implements ProcessingStrategyFactor
 
         @Override
         public Sink createSink(FlowConstruct flowConstruct, ReactiveProcessor pipeline) {
-          return new StreamPerEventSink(pipeline, event -> {
+          return new DirectSink(pipeline, event -> {
           });
         }
       };

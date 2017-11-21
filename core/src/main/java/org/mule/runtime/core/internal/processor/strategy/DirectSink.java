@@ -19,6 +19,8 @@ import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.DirectProcessor;
+import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.UnicastProcessor;
 
 /**
  * {@link Sink} implementation that dispatches incoming events directly to to the {@link Flow} serializing concurrent events.
@@ -38,9 +40,9 @@ class DirectSink implements Sink, Disposable {
    */
   public DirectSink(Function<Publisher<CoreEvent>, Publisher<CoreEvent>> function,
                     Consumer<CoreEvent> eventConsumer) {
-    DirectProcessor<CoreEvent> directProcessor = create();
+    EmitterProcessor<CoreEvent> directProcessor = EmitterProcessor.create();
     reactorSink =
-        new ReactorSink(directProcessor.serialize().sink(), directProcessor.transform(function).doOnError(throwable -> {
+        new ReactorSink(directProcessor.sink(), directProcessor.transform(function).doOnError(throwable -> {
         }).subscribe(), eventConsumer);
   }
 

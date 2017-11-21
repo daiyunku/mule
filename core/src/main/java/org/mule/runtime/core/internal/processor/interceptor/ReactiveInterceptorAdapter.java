@@ -40,6 +40,7 @@ import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.util.context.Context;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -107,15 +108,12 @@ public class ReactiveInterceptorAdapter implements BiFunction<Processor, Reactiv
               .map(doBefore(interceptor, component, dslParameters))
               .cast(CoreEvent.class)
               .transform(next)
-              .onErrorMap(MessagingException.class, error -> {
-                return createMessagingException(doAfter(interceptor, component, of(error.getCause()))
-                    .apply((InternalEvent) error.getEvent()),
-                                                error.getCause(), (Component) component);
-              })
+              .onErrorMap(MessagingException.class,
+                          error -> createMessagingException(doAfter(interceptor, component, of(error.getCause()))
+                              .apply((InternalEvent) error.getEvent()),
+                                                            error.getCause(), (Component) component))
               .cast(InternalEvent.class)
-              .map(doAfter(interceptor, component, empty()))
-
-      );
+              .map(doAfter(interceptor, component, empty())));
     } else {
       return next;
     }

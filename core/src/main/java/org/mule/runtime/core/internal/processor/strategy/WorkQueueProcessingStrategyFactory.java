@@ -56,12 +56,13 @@ public class WorkQueueProcessingStrategyFactory extends AbstractProcessingStrate
 
     @Override
     public Sink createSink(FlowConstruct flowConstruct, ReactiveProcessor pipeline) {
-      return new StreamPerEventSink(pipeline, createOnEventConsumer());
+      return new PerThreadSink(() -> new DirectSink(pipeline, createOnEventConsumer()));
     }
 
     @Override
     public ReactiveProcessor onPipeline(ReactiveProcessor pipeline) {
-      return publisher -> from(publisher).publishOn(fromExecutorService(decorateScheduler(ioScheduler))).transform(pipeline);
+      return publisher -> from(publisher).parallel().runOn(fromExecutorService(decorateScheduler(ioScheduler)))
+          .composeGroup(pipeline);
     }
 
     @Override

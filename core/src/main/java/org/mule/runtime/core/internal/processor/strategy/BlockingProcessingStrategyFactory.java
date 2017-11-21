@@ -6,6 +6,7 @@
  */
 package org.mule.runtime.core.internal.processor.strategy;
 
+import static org.mule.runtime.core.api.rx.Exceptions.propagateWrappingFatal;
 import static org.mule.runtime.core.api.rx.Exceptions.unwrap;
 import static org.mule.runtime.core.api.rx.Exceptions.wrapFatal;
 import static reactor.core.publisher.Flux.from;
@@ -66,7 +67,7 @@ public class BlockingProcessingStrategyFactory implements ProcessingStrategyFact
             sink.next(result);
           }
         } catch (Throwable throwable) {
-          sink.error(wrapFatal(unwrap(throwable)));
+          throw propagateWrappingFatal(unwrap(throwable));
         }
       });
     }
